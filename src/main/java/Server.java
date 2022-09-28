@@ -21,9 +21,6 @@ public class Server implements Runnable {
                         final var in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                         final var out = new BufferedOutputStream(socket.getOutputStream())
                 ) {
-                    new Thread(() -> {
-
-                    }).start();
                     // read only request line for simplicity
                     // must be in form GET /path HTTP/1.1
                     final var requestLine = in.readLine();
