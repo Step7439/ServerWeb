@@ -7,5 +7,6 @@ public class Main {
         ExecutorService executorService = Executors.newFixedThreadPool(64);
 
         executorService.execute(server);
+        executorService.shutdown();
     }
 }
