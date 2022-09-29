@@ -1,12 +1,11 @@
-import java.util.concurrent.ExecutorService;
+import java.io.IOException;
 import java.util.concurrent.Executors;
 
 public class Main {
-    public static void main(String[] args) {
-        Server server = new Server();
-        ExecutorService executorService = Executors.newFixedThreadPool(64);
+    public static void main(String[] args) throws IOException {
+        final var server = new Server();
 
-        executorService.execute(server);
-        executorService.shutdown();
+
+        server.setup(9999);
     }
 }
