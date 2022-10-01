@@ -7,7 +7,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
+import java.util.logging.Handler;
 
 public class Server extends Thread {
     public void setup(int port) throws IOException {
@@ -93,6 +95,10 @@ public class Server extends Thread {
                 e.printStackTrace();
             }
         }).start();
+    }
+
+    public void addHandler(String get, String s, Handler handler) {
+
     }
 }
 
