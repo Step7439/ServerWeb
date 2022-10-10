@@ -1,10 +1,7 @@
-import com.sun.net.httpserver.Request;
-
 import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 
 public class Main {
     final static int PORT = 9999;

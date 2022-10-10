@@ -6,19 +6,21 @@ import java.net.ServerSocket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.logging.Handler;
 
+import static java.lang.System.out;
+
 public class Server extends Thread {
+
     public void setup(int port) throws IOException {
         var executorService = Executors.newFixedThreadPool(64);
         executorService.execute(new Server());
         executorService.shutdown();
 
         final var serverSocket = new ServerSocket(port);
-        System.out.println("Start server!!!");
+        out.println("Start server!!!");
         listen(serverSocket);
     }
 
@@ -97,7 +99,28 @@ public class Server extends Thread {
         }).start();
     }
 
-    public void addHandler(String get, String s, Handler handler) {
+    public void addHandler(String get, String s, Handler handler) throws IOException {
+        final var list = List.of("/messages");
+        Map<Object, Object> map = new HashMap<>();
+        map.put(get, Request.messagesGet(s));
+
+        if (!list.contains(s)) {
+            out.write((
+                    "HTTP/1.1 404 Not Found\r\n" +
+                            "Content-Length: 0\r\n" +
+                            "Connection: close\r\n" +
+                            "\r\n"
+            ).getBytes());
+            out.flush();
+
+        }
+
+       for (Object gets : map.keySet()) {
+           if (gets.equals("GET")) {
+               Request.messagesGet(s);
+           }
+       }
+
 
     }
 }
