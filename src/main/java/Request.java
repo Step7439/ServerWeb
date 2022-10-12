@@ -5,23 +5,20 @@ import java.nio.file.Path;
 import static java.lang.System.out;
 
 public class Request {
+    protected final String method;
+    protected final String path;
 
+    public Request(String method, String path) {
+        this.method = method;
+        this.path = path;
+    }
 
-    public static Object messagesGet(String path) throws IOException {
+    public String getMethod() {
+        return method;
+    }
 
-        final var filePath = Path.of(".", "public", path);
-        final var mimeType = Files.probeContentType(filePath);
-
-        final var length = Files.size(filePath);
-        out.write((
-                "HTTP/1.1 200 OK\r\n" +
-                        "Content-Type: " + mimeType + "\r\n" +
-                        "Content-Length: " + length + "\r\n" +
-                        "Connection: close\r\n" +
-                        "\r\n"
-        ).getBytes());
-        Files.copy(filePath, out);
-        out.flush();
-        return null;
+    public String getPath() {
+        return path;
     }
 }
+
