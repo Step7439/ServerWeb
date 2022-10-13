@@ -1,12 +1,9 @@
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import static java.lang.System.out;
+package ru.netology;
 
 public class Request {
     protected final String method;
     protected final String path;
+
 
     public Request(String method, String path) {
         this.method = method;
