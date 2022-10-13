@@ -18,6 +18,11 @@ public class Main {
         server.addHandler("GET", "/index.html", Main::prossesFile);
         server.addHandler("GET", "/links.html", Main::prossesFile);
         server.addHandler("GET", "/resources.html", Main::prossesFile);
+        server.addHandler("GET", "/events.js", Main::prossesFile);
+        server.addHandler("GET", "/spring.png", Main::prossesFile);
+        server.addHandler("GET", "/spring.svg", Main::prossesFile);
+        server.addHandler("GET", "/styles.css", Main::prossesFile);
+        server.addHandler("GET", "/app.js", Main::prossesFile);
 
 
         // добавление handler'ов (обработчиков)
@@ -59,19 +64,15 @@ public class Main {
 
         // special case for classic
 
-        final var template = Files.readString(filePath);
-        final var content = template.replace(
-                "{time}",
-                LocalDateTime.now().toString()
-        ).getBytes();
+        final var length = Files.size(filePath);
         out.write((
                 "HTTP/1.1 200 OK\r\n" +
                         "Content-Type: " + mimeType + "\r\n" +
-                        "Content-Length: " + content.length + "\r\n" +
+                        "Content-Length: " + length + "\r\n" +
                         "Connection: close\r\n" +
                         "\r\n"
         ).getBytes());
-        out.write(content);
+        Files.copy(filePath, out);
         out.flush();
     }
 }
