@@ -45,6 +45,7 @@ public class Server {
             final var parts = requestLine.split(" ");
 
             if (parts.length != 3) {
+                bedRequest(out);
                 return;
             }
 
@@ -63,6 +64,11 @@ public class Server {
             }
 
             var handler = methodHandlers.get(reqvest.getPath());
+
+            if (handler == null){
+                notFound(out);
+                return;
+            }
 
             handler.handle(reqvest, out);
 
@@ -87,6 +93,16 @@ public class Server {
         ).getBytes());
         out.flush();
     }
+    public void bedRequest(BufferedOutputStream out) throws IOException {
+        out.write((
+                "HTTP/1.1 Bad Request\r\n" +
+                        "Content-Length: 0\r\n" +
+                        "Connection: close\r\n" +
+                        "\r\n"
+        ).getBytes());
+        out.flush();
+    }
+
 
     public void addHandler(String method, String path, Handler handler) {
         handlets.putIfAbsent(method, new ConcurrentHashMap<>());
