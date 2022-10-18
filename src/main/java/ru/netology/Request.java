@@ -20,8 +20,9 @@ public class Request {
     public String getQueryParam(String name){
       return name;
     }
-    public void getQueryParams(){
+//    public String getQueryParams() {
+//        return String a;
+//    }
 
-    }
 }
 

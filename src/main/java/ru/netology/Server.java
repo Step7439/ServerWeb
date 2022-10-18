@@ -4,9 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
+import java.net.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -14,8 +12,6 @@ import java.util.concurrent.Executors;
 
 public class Server {
     ConcurrentHashMap<String, ConcurrentHashMap<String, Handler>> handlets = new ConcurrentHashMap<>();
-    final List<String> validPaths = List.of("/index.html", "/spring.svg", "/spring.png", "/resources.html", "/styles.css", "/app.js", "/links.html", "/forms.html", "/classic.html", "/events.html", "/events.js");
-
     public void setup(int port) {
         try (var serverSocket = new ServerSocket(port);) {
 
@@ -45,6 +41,7 @@ public class Server {
             final var parts = requestLine.split(" ");
 
             if (parts.length != 3) {
+                bedRequest(out);
                 return;
             }
 
@@ -64,6 +61,11 @@ public class Server {
 
             var handler = methodHandlers.get(reqvest.getPath());
 
+            if (handler == null) {
+                notFound(out);
+                return;
+            }
+
             handler.handle(reqvest, out);
 
         } catch (
@@ -81,6 +83,15 @@ public class Server {
     public void notFound(BufferedOutputStream out) throws IOException {
         out.write((
                 "HTTP/1.1 404 Not Found\r\n" +
+                        "Content-Length: 0\r\n" +
+                        "Connection: close\r\n" +
+                        "\r\n"
+        ).getBytes());
+        out.flush();
+    }
+    public void bedRequest(BufferedOutputStream out) throws IOException {
+        out.write((
+                "HTTP/1.1 Bad Request\r\n" +
                         "Content-Length: 0\r\n" +
                         "Connection: close\r\n" +
                         "\r\n"
