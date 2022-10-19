@@ -18,6 +18,7 @@ public class Request {
         return path;
     }
     public String getQueryParam(String name){
+
       return name;
     }
 //    public String getQueryParams() {
