@@ -12,9 +12,8 @@ import java.util.concurrent.Executors;
 
 
 public class Server {
-    public static final String GET = "GET";
-    public static final String POST = "POST";
     ConcurrentHashMap<String, ConcurrentHashMap<String, Handler>> handlets = new ConcurrentHashMap<>();
+    final List<String> validPaths = List.of("/index.html", "/spring.svg", "/spring.png", "/resources.html", "/styles.css", "/app.js", "/links.html", "/forms.html", "/classic.html", "/events.html", "/events.js");
 
     public void setup(int port) {
         try (var serverSocket = new ServerSocket(port);) {
@@ -32,50 +31,31 @@ public class Server {
         }
     }
 
-    public void listen(Socket socket) {
-        final var allowedMethods = List.of(GET, POST);
+    public void listen(Socket socket)  {
+
         try (
+
                 var in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 var out = new BufferedOutputStream(socket.getOutputStream());
         ) {
             System.out.println(Thread.currentThread().getName());
 
-            final var limit = 4096;
+            final var requestLine = in.readLine();
+            final var parts = requestLine.split(" ");
 
-            in.mark(limit);
-            final var buffer = new byte[limit];
-            final var read = in.read();
-
-            // ищем request line
-            final var requestLineDelimiter = new byte[]{'\r', '\n'};
-            final var requestLineEnd = indexOf(buffer, requestLineDelimiter, 0, read);
-            if (requestLineEnd == -1) {
-                badRequest(out);
+            if (parts.length != 3) {
+                bedRequest(out);
                 return;
             }
 
-            // читаем request line
-            final var requestLine = new String(Arrays.copyOf(buffer, requestLineEnd)).split(" ");
-            if (requestLine.length != 3) {
-                badRequest(out);
+            final var reqvest = new Request(parts[0], parts[1]);
+
+            if (!handlets.containsKey(reqvest.getMethod())) {
+                notFound(out);
                 return;
             }
 
-            final var method = requestLine[0];
-            if (!allowedMethods.contains(method)) {
-                badRequest(out);
-                return;
-            }
-            System.out.println(method);
-
-            final var path = requestLine[1];
-            if (!path.startsWith("/")) {
-                badRequest(out);
-               return;
-            }
-var reqvest = new Request()
-            var methodHandlers = handlets.get(.getMethod());
-
+            var methodHandlers = handlets.get(reqvest.getMethod());
 
             if (!methodHandlers.containsKey(reqvest.getPath())) {
                 notFound(out);
@@ -84,7 +64,7 @@ var reqvest = new Request()
 
             var handler = methodHandlers.get(reqvest.getPath());
 
-            if (handler == null) {
+            if (handler == null){
                 notFound(out);
                 return;
             }
@@ -112,8 +92,7 @@ var reqvest = new Request()
         ).getBytes());
         out.flush();
     }
-
-    public void badRequest(BufferedOutputStream out) throws IOException {
+    public void bedRequest(BufferedOutputStream out) throws IOException {
         out.write((
                 "HTTP/1.1 Bad Request\r\n" +
                         "Content-Length: 0\r\n" +
@@ -123,22 +102,10 @@ var reqvest = new Request()
         out.flush();
     }
 
+
     public void addHandler(String method, String path, Handler handler) {
         handlets.putIfAbsent(method, new ConcurrentHashMap<>());
         handlets.get(method).put(path, handler);
 
     }
-    private static int indexOf(byte[] array, byte[] target, int start, int max) {
-        outer:
-        for (int i = start; i < max - target.length + 1; i++) {
-            for (int j = 0; j < target.length; j++) {
-                if (array[i + j] != target[j]) {
-                    continue outer;
-                }
-            }
-            return i;
-        }
-        return -1;
-    }
 }
-
