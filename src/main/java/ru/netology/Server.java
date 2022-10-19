@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 
-import static java.lang.StringUTF16.indexOf;
-
 
 public class Server {
+    public static final String GET = "GET";
+    public static final String POST = "POST";
     ConcurrentHashMap<String, ConcurrentHashMap<String, Handler>> handlets = new ConcurrentHashMap<>();
 
     public void setup(int port) {
@@ -33,6 +33,7 @@ public class Server {
     }
 
     public void listen(Socket socket) {
+        final var allowedMethods = List.of(GET, POST);
         try (
                 var in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 var out = new BufferedOutputStream(socket.getOutputStream());
@@ -60,14 +61,20 @@ public class Server {
                 return;
             }
 
-            final var reqvest = new Request(parts[0], parts[1]);
-
-            if (!handlets.containsKey(reqvest.getMethod())) {
-                notFound(out);
+            final var method = requestLine[0];
+            if (!allowedMethods.contains(method)) {
+                badRequest(out);
                 return;
             }
+            System.out.println(method);
 
-            var methodHandlers = handlets.get(reqvest.getMethod());
+            final var path = requestLine[1];
+            if (!path.startsWith("/")) {
+                badRequest(out);
+               return;
+            }
+var reqvest = new Request()
+            var methodHandlers = handlets.get(.getMethod());
 
 
             if (!methodHandlers.containsKey(reqvest.getPath())) {
