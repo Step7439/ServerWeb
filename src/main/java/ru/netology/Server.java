@@ -1,5 +1,9 @@
 package ru.netology;
 
+
+
+import org.apache.http.client.utils.URLEncodedUtils;
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,7 +17,6 @@ import java.util.concurrent.Executors;
 
 public class Server {
     ConcurrentHashMap<String, ConcurrentHashMap<String, Handler>> handlets = new ConcurrentHashMap<>();
-    final List<String> validPaths = List.of("/index.html", "/spring.svg", "/spring.png", "/resources.html", "/styles.css", "/app.js", "/links.html", "/forms.html", "/classic.html", "/events.html", "/events.js");
 
     public void setup(int port) {
         try (var serverSocket = new ServerSocket(port);) {
@@ -22,7 +25,7 @@ public class Server {
             System.out.println("Starting server!!!");
 
             while (true) {
-
+                System.out.println("Client connect");
                 Socket socket = serverSocket.accept();
                 executorService.submit(() -> listen(socket));
             }
@@ -34,7 +37,6 @@ public class Server {
     public void listen(Socket socket)  {
 
         try (
-
                 var in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 var out = new BufferedOutputStream(socket.getOutputStream());
         ) {
@@ -47,29 +49,34 @@ public class Server {
                 bedRequest(out);
                 return;
             }
+//            final var request = new Request(parts[0], parts[1]);
+//            System.out.println(request.getQueryParams());
+//            System.out.println(request.getQueryParam("id"));
+            final var request = Request.createRequest(parts[0], parts[1]);
 
-            final var reqvest = new Request(parts[0], parts[1]);
+            System.out.println(request.getQueryParams());
+            System.out.println(request.getQueryParam("id"));
 
-            if (!handlets.containsKey(reqvest.getMethod())) {
+            if (!handlets.containsKey(request.getMethod())) {
                 notFound(out);
                 return;
             }
 
-            var methodHandlers = handlets.get(reqvest.getMethod());
+            var methodHandlers = handlets.get(request.getMethod());
 
-            if (!methodHandlers.containsKey(reqvest.getPath())) {
+            if (!methodHandlers.containsKey(request.getPath())) {
                 notFound(out);
                 return;
             }
 
-            var handler = methodHandlers.get(reqvest.getPath());
+            var handler = methodHandlers.get(request.getPath());
 
             if (handler == null){
                 notFound(out);
                 return;
             }
 
-            handler.handle(reqvest, out);
+            handler.handle(request, out);
 
         } catch (
                 IOException e) {
@@ -101,7 +108,6 @@ public class Server {
         ).getBytes());
         out.flush();
     }
-
 
     public void addHandler(String method, String path, Handler handler) {
         handlets.putIfAbsent(method, new ConcurrentHashMap<>());
