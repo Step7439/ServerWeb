@@ -84,12 +84,6 @@ public class Server {
         }
     }
 
-    public void handle(Exception e) {
-        if (!(e instanceof SocketException)) {
-            e.printStackTrace();
-        }
-    }
-
     public void notFound(BufferedOutputStream out) throws IOException {
         out.write((
                 "HTTP/1.1 404 Not Found\r\n" +
@@ -107,6 +101,11 @@ public class Server {
                         "\r\n"
         ).getBytes());
         out.flush();
+    }
+    private void handle(Exception e) {
+        if (!(e instanceof SocketException)) {
+            e.printStackTrace();
+        }
     }
 
     public void addHandler(String method, String path, Handler handler) {

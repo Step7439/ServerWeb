@@ -29,7 +29,7 @@ public class Request {
         var builder = new StringBuilder();
         for (NameValuePair pair : this.list) {
             if (pair.getName().equals(name)) {
-                builder.append(pair).append(" ");
+                builder.append(pair + " ");
             }
         }
         return builder.toString();
@@ -40,12 +40,12 @@ public class Request {
     }
     public static Request createRequest(String method, String url) {
         Request req = new Request(method, url);
-        req.parsePathURL(url);
-        req.parseURL(url);
+        req.parsePath(url);
+        req.parseQuery(url);
         return req;
     }
 
-    private void parseURL(String url) {
+    private void parseQuery(String url) {
         if (url.indexOf('?') == -1) {
         return;
         }
@@ -54,7 +54,7 @@ public class Request {
         this.list = URLEncodedUtils.parse(parsedQuery, StandardCharsets.UTF_8);
     }
 
-    private void parsePathURL(String url) {
+    private void parsePath(String url) {
         var splittedPath = url.split("\\?")[0];
         this.path = splittedPath;
     }
