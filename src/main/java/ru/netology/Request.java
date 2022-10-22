@@ -9,6 +9,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class Request {
     private final String method;
@@ -34,14 +36,15 @@ public class Request {
     }
 
     public List<NameValuePair> getQueryParam(String name) {
+        return queryParams.stream()
+                .filter(x -> Objects.equals(x.getName(), name))
+                .collect(Collectors.toList());
 
-        return queryParams;
     }
 
     public List<NameValuePair> getQueryParams() {
-        return new ArrayList<>();
+        return queryParams;
     }
-
 
 
 }
