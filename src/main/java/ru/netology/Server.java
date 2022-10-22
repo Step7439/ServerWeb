@@ -1,9 +1,5 @@
 package ru.netology;
 
-
-
-import org.apache.http.client.utils.URLEncodedUtils;
-
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,6 +14,8 @@ import java.util.concurrent.Executors;
 public class Server {
     ConcurrentHashMap<String, ConcurrentHashMap<String, Handler>> handlets = new ConcurrentHashMap<>();
 
+    final List<String> validPaths = List.of("/index.html", "/spring.svg", "/spring.png", "/resources.html", "/styles.css", "/app.js", "/links.html", "/forms.html", "/classic.html", "/events.html", "/events.js");
+
     public void setup(int port) {
         try (var serverSocket = new ServerSocket(port);) {
 
@@ -25,7 +23,6 @@ public class Server {
             System.out.println("Starting server!!!");
 
             while (true) {
-                System.out.println("Client connect");
                 Socket socket = serverSocket.accept();
                 executorService.submit(() -> listen(socket));
             }
@@ -49,13 +46,7 @@ public class Server {
                 bedRequest(out);
                 return;
             }
-//            final var request = new Request(parts[0], parts[1]);
-//            System.out.println(request.getQueryParams());
-//            System.out.println(request.getQueryParam("id"));
-            final var request = Request.createRequest(parts[0], parts[1]);
-
-            System.out.println(request.getQueryParams());
-            System.out.println(request.getQueryParam("id"));
+           final var request = new Request(parts[0], parts[1]);
 
             if (!handlets.containsKey(request.getMethod())) {
                 notFound(out);
@@ -81,6 +72,8 @@ public class Server {
         } catch (
                 IOException e) {
             e.printStackTrace();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
     }
 

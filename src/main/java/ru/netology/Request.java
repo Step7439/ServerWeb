@@ -3,18 +3,26 @@ package ru.netology;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Request {
-    protected final String method;
-    protected String path;
+    private final String method;
+    private final String path;
 
-    protected List<NameValuePair> list;
 
-    public Request(String method, String path) {
+    private final List<NameValuePair> queryParams;
+
+    public Request(String method, String path) throws URISyntaxException {
         this.method = method;
-        this.path = path;
+        URI uri = new URI(path);
+        this.path = getPath();
+
+        this.queryParams = URLEncodedUtils.parse(uri, Charset.defaultCharset());
     }
 
     public String getMethod() {
@@ -25,39 +33,16 @@ public class Request {
         return path;
     }
 
-    public String getQueryParam(String name) {
-        var builder = new StringBuilder();
-        for (NameValuePair pair : this.list) {
-            if (pair.getName().equals(name)) {
-                builder.append(pair + " ");
-            }
-        }
-        return builder.toString();
+    public List<NameValuePair> getQueryParam(String name) {
+
+        return queryParams;
     }
 
-    public String getQueryParams() {
-        return this.list.toString();
-    }
-    public static Request createRequest(String method, String url) {
-        Request req = new Request(method, url);
-        req.parsePath(url);
-        req.parseQuery(url);
-        return req;
+    public List<NameValuePair> getQueryParams() {
+        return new ArrayList<>();
     }
 
-    private void parseQuery(String url) {
-        if (url.indexOf('?') == -1) {
-        return;
-        }
-        var splitPath = url.split("\\?")[1];
-        var parsedQuery = splitPath.split("#")[0];
-        this.list = URLEncodedUtils.parse(parsedQuery, StandardCharsets.UTF_8);
-    }
 
-    private void parsePath(String url) {
-        var splittedPath = url.split("\\?")[0];
-        this.path = splittedPath;
-    }
 
 }
 
