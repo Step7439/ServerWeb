@@ -20,7 +20,7 @@ public class Request {
     public Request(String method, String path) throws URISyntaxException {
         this.method = method;
         URI uri = new URI(path);
-        this.path = getPath();
+        this.path = uri.getPath();
 
         this.queryParams = URLEncodedUtils.parse(uri, Charset.defaultCharset());
     }
